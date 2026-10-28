@@ -7,6 +7,7 @@ Date: 2026-10-28.
 Capture process memory before a desktop logout or memory-exhaustion kill.
 The monitor writes Markdown snapshots with RAM, swap, process names, parent IDs, and cgroups.
 It excludes command arguments and environment variables.
+The companion toast shows live RAM use and the largest application estimates. See the repository README for its configuration.
 Application totals include visible descendants of each Zed instance, Steam, and Outbound.
 Nested game roots have separate totals. The monitor cannot attribute orphaned helpers to their former parents.
 
@@ -53,7 +54,7 @@ Processes can exit during collection. The monitor omits inaccessible or exited p
 Aggregated RSS can count shared pages more than once.
 The monitor stops when its report reaches approximately 64 MiB. Existing evidence remains intact.
 Choose a new output file before restarting a full report.
-The monitor never terminates applications or changes the system OOM policy.
+Neither the monitor nor the toast terminates applications or changes the system OOM policy.
 The user service survives a desktop scope kill while the user manager remains active.
 It stops when the user manager stops. An enabled service starts again at the next login.
 The monitor does not enable user lingering.

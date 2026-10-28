@@ -1,0 +1,16 @@
+[Unit]
+Description=Live memory warning toast
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 "%h/.local/lib/forgetmenot/toast.py" --config "%h/.config/forgetmenot/memory-toast.json"
+Restart=on-failure
+RestartSec=5
+MemoryMax=128M
+TasksMax=32
+UMask=0077
+
+[Install]
+WantedBy=graphical-session.target

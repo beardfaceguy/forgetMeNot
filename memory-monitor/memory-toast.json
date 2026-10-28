@@ -1,0 +1,10 @@
+{
+  "warning_percent": 85,
+  "clear_percent": 80,
+  "refresh_seconds": 2,
+  "position": "top-right",
+  "monitor": "primary",
+  "margin": 24,
+  "background": "#FFE600",
+  "foreground": "#111827"
+}

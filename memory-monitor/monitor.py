@@ -11,6 +11,13 @@ from pathlib import Path
 import time
 
 
+APPLICATION_NAMES = {
+    "zed-editor": "Zed", "steam": "Steam", "Outbound": "Outbound", "Outbound.exe": "Outbound",
+    "chrome": "Chrome", "chromium": "Chromium", "firefox": "Firefox", "slack": "Slack",
+    "cosmic-comp": "COSMIC", "cosmic-files": "Files",
+}
+
+
 def read_fields(path):
     fields = {}
     for line in path.read_text().splitlines():
@@ -24,31 +31,45 @@ def kib(fields, key):
     return int(fields.get(key, "0").split()[0])
 
 
+def application_owner(process, by_pid, roots):
+    ancestor_pid = process[1]
+    visited = set()
+    while ancestor_pid in by_pid and ancestor_pid not in visited:
+        visited.add(ancestor_pid)
+        ancestor = by_pid[ancestor_pid]
+        if ancestor[3] in roots:
+            return ancestor_pid, ancestor[3]
+        ancestor_pid = int(ancestor[2])
+    return None
+
+
 def application_tree_totals(processes):
     """Attribute each process to its nearest visible editor, Steam, or game ancestor."""
     by_pid = {process[1]: process for process in processes}
     roots = {"zed-editor", "steam", "Outbound", "Outbound.exe"}
     grouped = {}
     for process in processes:
-        ancestor_pid = process[1]
-        visited = set()
-        while ancestor_pid in by_pid and ancestor_pid not in visited:
-            visited.add(ancestor_pid)
-            ancestor = by_pid[ancestor_pid]
-            if ancestor[3] in roots:
-                counters = grouped.setdefault((ancestor_pid, ancestor[3]), [0, 0, 0])
-                counters[0] += 1
-                counters[1] += process[4]
-                counters[2] += process[5]
-                break
-            ancestor_pid = int(ancestor[2])
+        owner = application_owner(process, by_pid, roots)
+        if owner is not None:
+            counters = grouped.setdefault(owner, [0, 0, 0])
+            counters[0] += 1
+            counters[1] += process[4]
+            counters[2] += process[5]
     return grouped
 
 
-def snapshot():
-    memory = read_fields(Path("/proc/meminfo"))
+def top_applications(processes, limit=3):
+    by_pid = {process[1]: process for process in processes}
+    totals = defaultdict(int)
+    for process in processes:
+        owner = application_owner(process, by_pid, APPLICATION_NAMES)
+        name = APPLICATION_NAMES[owner[1]] if owner else process[3]
+        totals[name] += process[4]
+    return sorted(totals.items(), key=lambda application: application[1], reverse=True)[:limit]
+
+
+def collect_processes():
     processes = []
-    totals = defaultdict(lambda: [0, 0, 0])
     for process_path in Path("/proc").iterdir():
         if not process_path.name.isdigit():
             continue
@@ -59,12 +80,20 @@ def snapshot():
             swapped = kib(fields, "VmSwap")
             cgroup = (process_path / "cgroup").read_text().strip().splitlines()[0]
             processes.append((resident + swapped, int(process_path.name), fields["PPid"], name, resident, swapped, cgroup))
-            totals[name][0] += 1
-            totals[name][1] += resident
-            totals[name][2] += swapped
         except (OSError, KeyError, ValueError, IndexError):
             # Processes can exit between reads. Inaccessible processes are omitted.
             continue
+    return processes
+
+
+def snapshot():
+    memory = read_fields(Path("/proc/meminfo"))
+    processes = collect_processes()
+    totals = defaultdict(lambda: [0, 0, 0])
+    for process in processes:
+        totals[process[3]][0] += 1
+        totals[process[3]][1] += process[4]
+        totals[process[3]][2] += process[5]
     timestamp = datetime.now().astimezone().isoformat(timespec="seconds")
     lines = [f"\n## {timestamp}\n"]
     lines.append(f"RAM available: {kib(memory, 'MemAvailable') / 1024:.0f} MiB / {kib(memory, 'MemTotal') / 1024:.0f} MiB.")
