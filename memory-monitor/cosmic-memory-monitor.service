@@ -1,0 +1,12 @@
+[Unit]
+Description=Local memory evidence for desktop session failures
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 "%h/.local/lib/forgetmenot/memory-monitor.py" --interval 30 --output "%h/.local/state/forgetmenot/memory-samples.md"
+MemoryMax=96M
+TasksMax=4
+UMask=0077
+
+[Install]
+WantedBy=default.target
