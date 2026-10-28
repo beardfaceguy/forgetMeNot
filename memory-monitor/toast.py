@@ -8,6 +8,7 @@ import math
 import os
 from pathlib import Path
 import re
+import sys
 
 from monitor import collect_processes, kib, read_fields, top_applications
 
@@ -33,8 +34,8 @@ class ToastSettings:
     position: str = "top-right"
     monitor: object = "primary"
     margin: int = 24
-    background: str = "#FFE600"
-    foreground: str = "#111827"
+    background: str = "#FCEE0A"
+    foreground: str = "#000000"
 
     def __post_init__(self):
         if self.position not in POSITIONS:
@@ -53,8 +54,6 @@ class ToastSettings:
         for color in (self.background, self.foreground):
             if not isinstance(color, str) or not re.fullmatch(r"#[0-9a-fA-F]{6}", color):
                 raise ValueError("colors must use #RRGGBB format")
-        if contrast_ratio(self.background, self.foreground) < 4.5:
-            raise ValueError("foreground/background contrast must be at least 4.5:1")
 
 
 def load_settings(path):
@@ -231,6 +230,9 @@ def main():
     options = parser.parse_args()
     try:
         settings = load_settings(options.config)
+        contrast = contrast_ratio(settings.background, settings.foreground)
+        if contrast < 4.5:
+            print(f"Memory toast: text contrast is {contrast:.1f}:1; using the configured colors.", file=sys.stderr)
         run_toast(settings, preview_seconds=20 if options.preview else 0)
     except (OSError, ValueError, TypeError, ImportError, RuntimeError) as error:
         parser.exit(1, f"Memory toast: {error}\n")

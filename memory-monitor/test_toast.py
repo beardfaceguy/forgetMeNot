@@ -6,9 +6,20 @@ from toast import ToastSettings, WarningState, load_settings, toast_position
 
 
 class WarningTests(unittest.TestCase):
-    def test_unreadable_color_pair_is_rejected(self):
-        with self.assertRaisesRegex(ValueError, "contrast"):
-            ToastSettings(background="#111111", foreground="#121212")
+    def test_invalid_hex_color_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "#RRGGBB"):
+            ToastSettings(background="#nothex")
+
+    def test_default_colors_match_the_requested_palette(self):
+        settings = ToastSettings()
+        self.assertEqual((settings.background, settings.foreground), ("#FCEE0A", "#000000"))
+
+    def test_custom_hex_pair_is_accepted_from_configuration(self):
+        with tempfile.TemporaryDirectory() as directory:
+            config = Path(directory) / "toast.json"
+            config.write_text('{"background": "#FCEE0A", "foreground": "#02D7F2"}')
+            settings = load_settings(config)
+        self.assertEqual((settings.background, settings.foreground), ("#FCEE0A", "#02D7F2"))
 
     def test_warning_persists_until_recovery_and_dismissal_rearms_after_recovery(self):
         warning = WarningState(warning_percent=85, clear_percent=80)

@@ -10,7 +10,7 @@ It runs as a systemd user service, separately from the desktop session group.
 The tool records evidence and displays a live memory-warning toast.
 It does not kill applications or change the system OOM policy.
 
-The toast uses a bright yellow background and dark text.
+The toast defaults to background `#FCEE0A` and text `#000000`.
 Its JSON configuration controls the screen corner, monitor, margins, colors, thresholds, and refresh interval.
 
 ## Install after an OS reinstall
@@ -75,7 +75,8 @@ systemctl --user restart forgetmenot-memory-toast.service
 
 The default position is `top-right`. Other positions are `top-left`, `bottom-right`, and `bottom-left`.
 `monitor` accepts `primary` or a zero-based monitor index. `margin` sets the inset in logical pixels.
-`background` and `foreground` accept `#RRGGBB` colors. The tool rejects text contrast below 4.5:1.
+`background` and `foreground` accept configurable `#RRGGBB` colors.
+The tool reports low text contrast in its service log and applies the configured colors.
 
 By default, the toast appears at 85% RAM use and remains until use drops below 80%.
 It refreshes every two seconds. The percentage uses `MemAvailable` to account for reclaimable cache.
