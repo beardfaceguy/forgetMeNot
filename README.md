@@ -1,5 +1,8 @@
 # forgetMeNot
 
+For optional per-instance Zed cgroup isolation, see [Isolated Zed launches](zed-scope/README.md).
+The launcher gives new instances the approved temporary memory budgets. Existing instances require a separate staged update.
+
 Personal Linux tools and setup instructions that survive an OS reinstall.
 
 ## Memory monitor

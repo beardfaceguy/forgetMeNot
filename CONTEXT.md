@@ -2,7 +2,7 @@
 
 Date: 2026-10-28.
 
-_Anchors:_ `memory-monitor/monitor.py::snapshot`, `memory-monitor/monitor.py::application_tree_totals`, `memory-monitor/monitor.py::top_applications`, `memory-monitor/toast.py::ToastSettings`, `memory-monitor/toast.py::WarningState`, `memory-monitor/toast.py::toast_position`, `memory-monitor/toast.py::run_toast`
+_Anchors:_ `memory-monitor/monitor.py::snapshot`, `memory-monitor/monitor.py::application_tree_totals`, `memory-monitor/monitor.py::top_applications`, `memory-monitor/toast.py::ToastSettings`, `memory-monitor/toast.py::WarningState`, `memory-monitor/toast.py::toast_position`, `memory-monitor/toast.py::run_toast`, `zed-scope/launcher.py::scope_command`, `zed-scope/launcher.py::launch_detached`, `zed-scope/install.py::install`, `zed-scope/install.py::restore`
 
 - **Memory snapshot:** a local evidence record that helps identify memory consumers before a desktop session ends. See `snapshot`.
 - **Application tree:** processes attributed through visible parent links to a supported application. See `application_tree_totals`.
@@ -15,3 +15,6 @@ _Anchors:_ `memory-monitor/monitor.py::snapshot`, `memory-monitor/monitor.py::ap
 - **Warning state:** a threshold crossing that remains active until memory recovers. Dismissal lasts until recovery. See `WarningState`.
 - **Toast position:** a configurable corner within a monitor's work area. Xwayland permits direct placement on COSMIC. See `toast_position`.
 - **Application memory estimate:** resident memory attributed through visible parent links and grouped across recognized application instances. Shared pages can appear repeatedly. See `top_applications`.
+- **Isolated Zed launch:** a new independent development editor placed in a delegated systemd user scope with a temporary approved memory budget. See `scope_command`.
+- **Instance memory budget:** soft RAM, hard RAM, and swap settings applied to an editor scope and its contained helpers. See `scope_command` for the approved values.
+- **Launch-path backup:** the original terminal symlink and desktop entry retained for rollback. See `install` and `restore`.
